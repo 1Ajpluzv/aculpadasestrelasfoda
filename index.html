@@ -1,0 +1,2331 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Entre Estrelas — Uma História Interativa</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap');
+
+:root {
+    --black: #0b0b0b;
+    --dark: #121212;
+    --dark2: #1b1b1b;
+    --gray: #777;
+    --light-gray: #bcbcbc;
+    --white: #f2f2f2;
+    --white2: #dcdcdc;
+    --line: rgba(255,255,255,.15);
+    --accent: #ffffff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background: var(--black);
+    color: var(--white);
+    font-family: Inter, sans-serif;
+    min-height: 100vh;
+}
+
+/* =========================
+   INTRO
+========================= */
+
+.intro {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: #080808;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity .8s ease, visibility .8s;
+}
+
+.intro.hide {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.intro-content {
+    width: min(700px, 90%);
+}
+
+.intro-small {
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: #888;
+    text-transform: uppercase;
+    margin-bottom: 30px;
+}
+
+.intro h1 {
+    font-family: "Playfair Display", serif;
+    font-weight: 400;
+    font-size: clamp(45px, 8vw, 100px);
+    line-height: .95;
+    margin-bottom: 35px;
+}
+
+.intro p {
+    max-width: 450px;
+    color: #999;
+    line-height: 1.7;
+    font-size: 14px;
+}
+
+.start-btn {
+    margin-top: 45px;
+    border: 1px solid #777;
+    background: transparent;
+    color: white;
+    padding: 16px 25px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 10px;
+    transition: .3s;
+}
+
+.start-btn:hover {
+    background: white;
+    color: black;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+header {
+    height: 75px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 5vw;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(11,11,11,.92);
+    backdrop-filter: blur(12px);
+}
+
+.logo {
+    font-family: "Playfair Display", serif;
+    font-size: 20px;
+}
+
+.logo span {
+    color: #777;
+}
+
+.header-info {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+    font-size: 9px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.restart {
+    border: 1px solid #444;
+    color: #aaa;
+    background: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 9px;
+}
+
+.restart:hover {
+    color: white;
+    border-color: white;
+}
+
+/* =========================
+   PROGRESS
+========================= */
+
+.progress-area {
+    padding: 25px 5vw 0;
+}
+
+.progress-top {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #777;
+    margin-bottom: 10px;
+}
+
+.progress-bar {
+    height: 2px;
+    width: 100%;
+    background: #282828;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background: white;
+    transition: width .6s ease;
+}
+
+/* =========================
+   GAME
+========================= */
+
+.game {
+    width: min(1250px, 90%);
+    margin: auto;
+}
+
+.chapter {
+    min-height: calc(100vh - 120px);
+    padding: 70px 0;
+    display: none;
+}
+
+.chapter.active {
+    display: block;
+    animation: enter .7s ease;
+}
+
+@keyframes enter {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.chapter-grid {
+    display: grid;
+    grid-template-columns: 80px 1fr 1fr;
+    gap: 45px;
+}
+
+.chapter-number {
+    font-size: 11px;
+    color: #777;
+    border-top: 1px solid #444;
+    padding-top: 15px;
+}
+
+.chapter-content {
+    max-width: 580px;
+}
+
+.chapter-label {
+    color: #777;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 25px;
+}
+
+.chapter h2 {
+    font-family: "Playfair Display", serif;
+    font-weight: 400;
+    font-size: clamp(40px, 6vw, 80px);
+    line-height: .95;
+    margin-bottom: 30px;
+}
+
+.chapter h2 em {
+    color: #777;
+    font-style: normal;
+}
+
+.story {
+    color: #aaa;
+    line-height: 1.8;
+    font-size: 14px;
+    max-width: 520px;
+}
+
+.scene-box {
+    border: 1px solid var(--line);
+    min-height: 420px;
+    background:
+        linear-gradient(135deg, rgba(255,255,255,.03), transparent),
+        #111;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 35px;
+    position: relative;
+    overflow: hidden;
+}
+
+.scene-box::before {
+    content: "";
+    position: absolute;
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,.07), transparent 65%);
+    right: -80px;
+    top: -80px;
+}
+
+.scene-location {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: #777;
+}
+
+.scene-symbol {
+    font-family: "Playfair Display", serif;
+    font-size: 120px;
+    color: #282828;
+    line-height: 1;
+    text-align: center;
+}
+
+.scene-quote {
+    color: #999;
+    font-family: "Playfair Display", serif;
+    font-size: 18px;
+    line-height: 1.5;
+    max-width: 400px;
+}
+
+/* =========================
+   CHOICE
+========================= */
+
+.choice-section {
+    margin-top: 55px;
+    border-top: 1px solid var(--line);
+    padding-top: 30px;
+}
+
+.choice-title {
+    font-size: 9px;
+    color: #777;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+}
+
+.choices {
+    display: grid;
+    gap: 10px;
+}
+
+.choice {
+    border: 1px solid #333;
+    background: #111;
+    color: #ccc;
+    padding: 18px 20px;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    transition: .3s;
+    font-family: Inter;
+}
+
+.choice:hover {
+    border-color: #aaa;
+    background: #1d1d1d;
+    color: white;
+    transform: translateX(5px);
+}
+
+.choice-number {
+    color: #666;
+    font-size: 10px;
+}
+
+/* =========================
+   QTE
+========================= */
+
+.qte-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.94);
+    z-index: 500;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.qte-overlay.active {
+    display: flex;
+    animation: fadeIn .3s;
+}
+
+.qte {
+    width: min(600px, 90%);
+}
+
+.qte-label {
+    font-size: 9px;
+    letter-spacing: 4px;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.qte h3 {
+    font-family: "Playfair Display", serif;
+    font-size: 42px;
+    font-weight: 400;
+    margin-bottom: 10px;
+}
+
+.qte-description {
+    color: #888;
+    font-size: 13px;
+    margin-bottom: 30px;
+}
+
+.qte-key {
+    width: 110px;
+    height: 110px;
+    margin: auto;
+    border: 1px solid #555;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 35px;
+    font-weight: 300;
+    transition: .1s;
+}
+
+.qte-key.hit {
+    background: white;
+    color: black;
+    transform: scale(.92);
+}
+
+.qte-timer {
+    margin: 35px auto 0;
+    width: 250px;
+    height: 2px;
+    background: #333;
+}
+
+.qte-timer-fill {
+    height: 100%;
+    width: 100%;
+    background: white;
+}
+
+.qte-result {
+    margin-top: 25px;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* =========================
+   STATS
+========================= */
+
+.stats {
+    display: flex;
+    gap: 35px;
+    margin-top: 45px;
+    border-top: 1px solid var(--line);
+    padding-top: 25px;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.stat strong {
+    font-size: 25px;
+    font-weight: 400;
+}
+
+.stat span {
+    font-size: 8px;
+    text-transform: uppercase;
+    color: #666;
+    letter-spacing: 2px;
+}
+
+/* =========================
+   ENDING
+========================= */
+
+.ending {
+    display: none;
+    min-height: 100vh;
+    padding: 100px 0;
+}
+
+.ending.active {
+    display: block;
+    animation: enter .8s;
+}
+
+.ending-container {
+    width: min(900px, 90%);
+    margin: auto;
+}
+
+.ending-label {
+    font-size: 10px;
+    color: #666;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+}
+
+.ending h1 {
+    font-family: "Playfair Display", serif;
+    font-size: clamp(50px, 9vw, 110px);
+    font-weight: 400;
+    line-height: .9;
+    margin: 30px 0;
+}
+
+.ending-description {
+    color: #aaa;
+    line-height: 1.8;
+    max-width: 600px;
+    font-size: 15px;
+}
+
+.ending-card {
+    margin-top: 60px;
+    border: 1px solid #333;
+    padding: 40px;
+    background: #111;
+}
+
+.ending-card h3 {
+    font-family: "Playfair Display", serif;
+    font-weight: 400;
+    font-size: 25px;
+    margin-bottom: 15px;
+}
+
+.ending-card p {
+    color: #888;
+    line-height: 1.7;
+    font-size: 13px;
+}
+
+.play-again {
+    margin-top: 35px;
+    padding: 15px 25px;
+    background: white;
+    color: black;
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 9px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width: 850px) {
+
+    .header-info {
+        display: none;
+    }
+
+    .chapter-grid {
+        grid-template-columns: 1fr;
+        gap: 35px;
+    }
+
+    .chapter-number {
+        border: none;
+        padding: 0;
+    }
+
+    .chapter {
+        padding: 45px 0;
+    }
+
+    .scene-box {
+        min-height: 300px;
+    }
+
+    .scene-symbol {
+        font-size: 80px;
+    }
+
+    .stats {
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- =========================
+     INTRO
+========================= -->
+
+<div class="intro" id="intro">
+
+    <div class="intro-content">
+
+        <div class="intro-small">
+            uma experiência interativa
+        </div>
+
+        <h1>
+            Entre<br>
+            Estrelas.
+        </h1>
+
+        <p>
+            Uma história sobre encontros, escolhas,
+            medo, amor e a tentativa de deixar alguma
+            coisa bonita no mundo.
+        </p>
+
+        <button class="start-btn" onclick="startGame()">
+            iniciar experiência →
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     HEADER
+========================= -->
+
+<header>
+
+    <div class="logo">
+        entre<span>estrelas</span>
+    </div>
+
+    <div class="header-info">
+
+        <span id="chapterHeader">
+            parte 01 / 10
+        </span>
+
+        <span>
+            história interativa
+        </span>
+
+        <button class="restart" onclick="restartGame()">
+            reiniciar
+        </button>
+
+    </div>
+
+</header>
+
+
+<!-- =========================
+     PROGRESS
+========================= -->
+
+<div class="progress-area">
+
+    <div class="progress-top">
+
+        <span id="progressText">
+            01 — início
+        </span>
+
+        <span id="progressPercent">
+            0%
+        </span>
+
+    </div>
+
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+</div>
+
+
+<!-- =========================
+     GAME
+========================= -->
+
+<main class="game" id="game">
+
+
+<!-- PARTE 01 -->
+
+<section class="chapter active" id="chapter1">
+
+<div class="chapter-grid">
+
+<div class="chapter-number">
+01
+</div>
+
+<div class="chapter-content">
+
+<div class="chapter-label">
+o começo
+</div>
+
+<h2>
+um lugar<br>
+para <em>respirar</em>
+</h2>
+
+<p class="story">
+Hazel conhece há algum tempo o ambiente do grupo de apoio.
+As cadeiras estão sempre no mesmo lugar e as histórias parecem
+se repetir. Naquele dia, porém, há alguém novo observando tudo
+com uma confiança quase irritante.
+</p>
+
+<div class="choice-section">
+
+<div class="choice-title">
+o que você faz?
+</div>
+
+<div class="choices">
+
+<button class="choice" onclick="makeChoice(1,'curiosa')">
+<span class="choice-number">01</span>
+Observar o garoto discretamente.
+</button>
+
+<button class="choice" onclick="makeChoice(1,'distante')">
+<span class="choice-number">02</span>
+Ignorar a presença dele.
+</button>
+
+<button class="choice" onclick="makeChoice(1,'direta')">
+<span class="choice-number">03</span>
+Perguntar por que ele está olhando.
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="scene-box">
+
+<div class="scene-location">
+grupo de apoio · primeira noite
+</div>
+
+<div class="scene-symbol">
+01
+</div>
+
+<div class="scene-quote">
+"Alguns encontros começam antes mesmo de duas pessoas dizerem seus nomes."
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- PARTE 02 -->
+
+<section class="chapter" id="chapter2">
+
+<div class="chapter-grid">
+
+<div class="chapter-number">
+02
+</div>
+
+<div class="chapter-content">
+
+<div class="chapter-label">
+primeiro encontro
+</div>
+
+<h2>
+um nome<br>
+que <em>fica</em>
+</h2>
+
+<p class="story">
+Augustus se aproxima. Ele tem uma maneira exageradamente
+confiante de transformar uma conversa comum em alguma espécie
+de desafio. Hazel tenta manter distância, mas existe algo
+genuinamente divertido naquela conversa.
+</p>
+
+<div class="choice-section">
+
+<div class="choice-title">
+qual assunto você escolhe?
+</div>
+
+<div class="choices">
+
+<button class="choice" onclick="makeChoice(2,'livros')">
+<span class="choice-number">01</span>
+Falar sobre livros.
+</button>
+
+<button class="choice" onclick="makeChoice(2,'medos')">
+<span class="choice-number">02</span>
+Falar sobre aquilo que você teme.
+</button>
+
+<button class="choice" onclick="makeChoice(2,'futuro')">
+<span class="choice-number">03</span>
+Perguntar o que ele espera do futuro.
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="scene-box">
+
+<div class="scene-location">
+estacionamento · fim da tarde
+</div>
+
+<div class="scene-symbol">
+02
+</div>
+
+<div class="scene-quote">
+"Talvez algumas pessoas entrem na nossa vida para mudar o tamanho do mundo."
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- PARTE 03 -->
+
+<section class="chapter" id="chapter3">
+
+<div class="chapter-grid">
+
+<div class="chapter-number">
+03
+</div>
+
+<div class="chapter-content">
+
+<div class="chapter-label">
+troca
+</div>
+
+<h2>
+um livro<br>
+e uma <em>promessa</em>
+</h2>
+
+<p class="story">
+A amizade cresce através de uma troca de livros. Hazel percebe
+que Augustus não está apenas interessado na história: ele quer
+entender por que aquele livro significa tanto para ela.
+</p>
+
+<div class="choice-section">
+
+<div class="choice-title">
+sua resposta
+</div>
+
+<div class="choices">
+
+<button class="choice" onclick="makeChoice(3,'abrir')">
+<span class="choice-number">01</span>
+Contar por que a história é importante.
+</button>
+
+<button class="choice" onclick="makeChoice(3,'brincar')">
+<span class="choice-number">02</span>
+Fazer uma piada e mudar de assunto.
+</button>
+
+<button class="choice" onclick="makeChoice(3,'desafio')">
+<span class="choice-number">03</span>
+Propor que os dois descubram juntos o final.
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="scene-box">
+
+<div class="scene-location">
+biblioteca · noite
+</div>
+
+<div class="scene-symbol">
+03
+</div>
+
+<div class="scene-quote">
+"Livros também podem ser lugares onde duas pessoas se encontram."
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- PARTE 04 -->
+
+<section class="chapter" id="chapter4">
+
+<div class="chapter-grid">
+
+<div class="chapter-number">
+04
+</div>
+
+<div class="chapter-content">
+
+<div class="chapter-label">
+o plano
+</div>
+
+<h2>
+um lugar<br>
+do outro <em>lado</em>
+</h2>
+
+<p class="story">
+A conversa sobre o livro leva a uma ideia improvável:
+viajar para encontrar o autor e descobrir o que acontece
+depois da última página.
+</p>
+
+<div class="choice-section">
+
+<div class="choice-title">
+você aceita?
+</div>
+
+<div class="choices">
+
+<button class="choice" onclick="makeChoice(4,'sim')">
+<span class="choice-number">01</span>
+Aceitar imediatamente.
+</button>
+
+<button class="choice" onclick="makeChoice(4,'condicao')">
+<span class="choice-number">02</span>
+Aceitar, mas com algumas condições.
+</button>
+
+<button class="choice" onclick="makeChoice(4,'duvida')">
+<span class="choice-number">03</span>
+Perguntar se realmente vale a pena.
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="scene-box">
+
+<div class="scene-location">
+planejamento · madrugada
+</div>
+
+<div class="scene-symbol">
+04
+</div>
+
+<div class="scene-quote">
+"Alguns planos são perigosos porque nos fazem acreditar que existe um amanhã garantido."
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- PARTE 05 -->
+
+<section class="chapter" id="chapter5">
+
+<div class="chapter-grid">
+
+<div class="chapter-number">
+05
+</div>
+
+<div class="chapter-content">
+
+<div class="chapter-label">
+a viagem
+</div>
+
+<h2>
+uma cidade<br>
+<em>estranha</em>
+</h2>
+
+<p class="story">
+A viagem acontece. A cidade parece maior do que qualquer
+expectativa. Entre ruas desconhecidas, restaurantes e conversas
+longas, os dois percebem que a viagem é muito mais sobre eles
+do que sobre encontrar respostas.
+</p>
+
+<div class="choice-section">
+
+<div class="choice-title">
+uma noite inesperada
+</div>
+
+<div class="choices">
+
+<button class="choice" onclick="startQTE(5,'caminhada')">
+<span class="choice-number">01</span>
+Caminhar pela cidade.
+</button>
+
+<button class="choice" onclick="startQTE(5,'jantar')">
+<span class="choice-number">02</span>
+Ficar conversando durante o jantar.
+</button>
+
+<button class="choice" onclick="startQTE(5,'observacao')">
+<span class="choice-number">03</span>
+Observar a cidade em silêncio.
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="scene-box">
+
+<div class="scene-location">
+amsterdã · noite
+</div>
+
+<div class="scene-symbol">
+05
+</div>
+
+<div class="scene-quote">
+"Por algumas horas, o futuro parecia distante o suficiente para não assustar."
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- PARTE 06 -->
+
+<section class="chapter" id="chapter6">
+
+<div class="chapter-grid">
+
+<div class="chapter-number">
+06
+</div>
+
+<div class="chapter-content">
+
+<div class="chapter-label">
+depois da viagem
+</div>
+
+<h2>
+quando o<br>
+silêncio <em>muda</em>
+</h2>
+
+<p class="story">
+A viagem termina, mas alguma coisa mudou. Augustus começa a
+revelar que sua situação é mais complicada do que havia deixado
+transparecer.
+</p>
+
+<div class="choice-section">
+
+<div class="choice-title">
+como reagir?
+</div>
+
+<div class="choices">
+
+<button class="choice" onclick="makeChoice(6,'ficar')">
+<span class="choice-number">01</span>
+Dizer que você vai ficar ao lado dele.
+</button>
+
+<button class="choice" onclick="makeChoice(6,'medo')">
+<span class="choice-number">02</span>
+Admitir que está com medo.
+</button>
+
+<button class="choice" onclick="makeChoice(6,'fuga')">
+<span class="choice-number">03</span>
+Se afastar antes que doa mais.
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="scene-box">
+
+<div class="scene-location">
+casa · madrugada
+</div>
+
+<div class="scene-symbol">
+06
+</div>
+
+<div class="scene-quote">
+"Às vezes amar alguém significa continuar presente quando não existe uma resposta fácil."
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- PARTE 07 -->
+
+<section class="chapter" id="chapter7">
+
+<div class="chapter-grid">
+
+<div class="chapter-number">
+07
+</div>
+
+<div class="chapter-content">
+
+<div class="chapter-label">
+o tempo
+</div>
+
+<h2>
+cada segundo<br>
+<em>conta</em>
+</h2>
+
+<p class="story">
+Os dias passam de uma maneira diferente. Pequenas coisas
+ganham importância: uma ligação, uma visita, uma mensagem,
+um momento em silêncio.
+</p>
+
+<div class="choice-section">
+
+<div class="choice-title">
+um momento decisivo
+</div>
+
+<div class="choices">
+
+<button class="choice" onclick="startQTE(7,'telefone')">
+<span class="choice-number">01</span>
+Atender imediatamente.
+</button>
+
+<button class="choice" onclick="startQTE(7,'hospital')">
+<span class="choice-number">02</span>
+Ir até ele.
+</button>
+
+<button class="choice" onclick="startQTE(7,'mensagem')">
+<span class="choice-number">03</span>
+Enviar uma mensagem antes de chegar.
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="scene-box">
+
+<div class="scene-location">
+uma ligação · tarde
+</div>
+
+<div class="scene-symbol">
+07
+</div>
+
+<div class="scene-quote">
+"Quando sabemos que o tempo é limitado, até os segundos parecem ter peso."
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- PARTE 08 -->
+
+<section class="chapter" id="chapter8">
+
+<div class="chapter-grid">
+
+<div class="chapter-number">
+08
+</div>
+
+<div class="chapter-content">
+
+<div class="chapter-label">
+a despedida
+</div>
+
+<h2>
+o medo<br>
+de <em>perder</em>
+</h2>
+
+<p class="story">
+A doença avança e aquilo que parecia impossível finalmente
+se torna real. Hazel precisa decidir se deixa o medo controlar
+cada momento ou se continua vivendo aquilo que ainda existe.
+</p>
+
+<div class="choice-section">
+
+<div class="choice-title">
+o que você escolhe?
+</div>
+
+<div class="choices">
+
+<button class="choice" onclick="makeChoice(8,'presente')">
+<span class="choice-number">01</span>
+Viver o presente.
+</button>
+
+<button class="choice" onclick="makeChoice(8,'confissao')">
+<span class="choice-number">02</span>
+Dizer tudo que sente.
+</button>
+
+<button class="choice" onclick="makeChoice(8,'protecao')">
+<span class="choice-number">03</span>
+Tentar proteger os dois da dor.
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="scene-box">
+
+<div class="scene-location">
+quarto · noite
+</div>
+
+<div class="scene-symbol">
+08
+</div>
+
+<div class="scene-quote">
+"Não podemos escolher quanto tempo temos. Podemos escolher o que fazemos com ele."
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- PARTE 09 -->
+
+<section class="chapter" id="chapter9">
+
+<div class="chapter-grid">
+
+<div class="chapter-number">
+09
+</div>
+
+<div class="chapter-content">
+
+<div class="chapter-label">
+o que permanece
+</div>
+
+<h2>
+depois<br>
+do <em>fim</em>
+</h2>
+
+<p class="story">
+A ausência chega. Hazel precisa enfrentar a pergunta que sempre
+tentou evitar: o que significa continuar quando alguém que mudou
+sua vida já não está presente?
+</p>
+
+<div class="choice-section">
+
+<div class="choice-title">
+como continuar?
+</div>
+
+<div class="choices">
+
+<button class="choice" onclick="makeChoice(9,'memoria')">
+<span class="choice-number">01</span>
+Guardar as memórias.
+</button>
+
+<button class="choice" onclick="makeChoice(9,'mundo')">
+<span class="choice-number">02</span>
+Voltar para o mundo.
+</button>
+
+<button class="choice" onclick="makeChoice(9,'palavras')">
+<span class="choice-number">03</span>
+Escrever sobre tudo.
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="scene-box">
+
+<div class="scene-location">
+silêncio · manhã
+</div>
+
+<div class="scene-symbol">
+09
+</div>
+
+<div class="scene-quote">
+"Uma pessoa pode desaparecer e ainda assim deixar o mundo diferente."
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- PARTE 10 -->
+
+<section class="chapter" id="chapter10">
+
+<div class="chapter-grid">
+
+<div class="chapter-number">
+10
+</div>
+
+<div class="chapter-content">
+
+<div class="chapter-label">
+última página
+</div>
+
+<h2>
+uma história<br>
+que <em>fica</em>
+</h2>
+
+<p class="story">
+Hazel percebe que talvez a medida de uma vida não esteja na
+quantidade de tempo, mas naquilo que acontece entre um momento
+e outro. Agora existe uma última escolha.
+</p>
+
+<div class="choice-section">
+
+<div class="choice-title">
+a última decisão
+</div>
+
+<div class="choices">
+
+<button class="choice" onclick="finishGame('amor')">
+<span class="choice-number">01</span>
+Escolher lembrar do amor.
+</button>
+
+<button class="choice" onclick="finishGame('futuro')">
+<span class="choice-number">02</span>
+Escolher o futuro.
+</button>
+
+<button class="choice" onclick="finishGame('legado')">
+<span class="choice-number">03</span>
+Escolher transformar a dor em algo.
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="scene-box">
+
+<div class="scene-location">
+última página · depois
+</div>
+
+<div class="scene-symbol">
+10
+</div>
+
+<div class="scene-quote">
+"Algumas histórias terminam. O que elas mudam em nós, não."
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+</main>
+
+
+<!-- =========================
+     QTE
+========================= -->
+
+<div class="qte-overlay" id="qteOverlay">
+
+<div class="qte">
+
+<div class="qte-label">
+quick time event
+</div>
+
+<h3 id="qteTitle">
+espere...
+</h3>
+
+<p class="qte-description" id="qteDescription">
+</p>
+
+<div class="qte-key" id="qteKey">
+A
+</div>
+
+<div class="qte-timer">
+<div class="qte-timer-fill" id="qteTimerFill"></div>
+</div>
+
+<div class="qte-result" id="qteResult"></div>
+
+</div>
+
+</div>
+
+
+<!-- =========================
+     ENDING
+========================= -->
+
+<section class="ending" id="ending">
+
+<div class="ending-container">
+
+<div class="ending-label">
+final desbloqueado
+</div>
+
+<h1 id="endingTitle">
+...
+</h1>
+
+<p class="ending-description" id="endingDescription">
+...
+</p>
+
+<div class="ending-card">
+
+<h3 id="endingCardTitle">
+...
+</h3>
+
+<p id="endingCardText">
+...
+</p>
+
+</div>
+
+<div class="stats">
+
+<div class="stat">
+<strong id="finalBond">0</strong>
+<span>vínculo</span>
+</div>
+
+<div class="stat">
+<strong id="finalHope">0</strong>
+<span>esperança</span>
+</div>
+
+<div class="stat">
+<strong id="finalCourage">0</strong>
+<span>coragem</span>
+</div>
+
+</div>
+
+<button class="play-again" onclick="restartGame()">
+viver novamente →
+</button>
+
+</div>
+
+</section>
+
+
+<script>
+
+/* ========================================
+   ESTADO DO JOGO
+======================================== */
+
+let game = {
+
+    chapter: 1,
+
+    bond: 0,
+
+    hope: 0,
+
+    courage: 0,
+
+    choices: [],
+
+    qteSuccess: 0,
+
+    qteFails: 0
+
+};
+
+
+/* ========================================
+   INICIAR
+======================================== */
+
+function startGame() {
+
+    document
+        .getElementById("intro")
+        .classList.add("hide");
+
+    updateInterface();
+
+}
+
+
+/* ========================================
+   ESCOLHAS
+======================================== */
+
+function makeChoice(chapter, choice) {
+
+    game.choices.push({
+        chapter: chapter,
+        choice: choice
+    });
+
+
+    /*
+       Cada decisão altera as três
+       características do personagem.
+    */
+
+    switch(choice) {
+
+        case "curiosa":
+            game.bond += 2;
+            game.courage += 1;
+            break;
+
+        case "distante":
+            game.hope -= 1;
+            game.courage += 1;
+            break;
+
+        case "direta":
+            game.bond += 1;
+            game.courage += 2;
+            break;
+
+
+        case "livros":
+            game.bond += 2;
+            break;
+
+        case "medos":
+            game.bond += 3;
+            game.courage += 1;
+            break;
+
+        case "futuro":
+            game.hope += 2;
+            game.bond += 1;
+            break;
+
+
+        case "abrir":
+            game.bond += 3;
+            break;
+
+        case "brincar":
+            game.hope += 2;
+            break;
+
+        case "desafio":
+            game.bond += 2;
+            game.courage += 1;
+            break;
+
+
+        case "sim":
+            game.hope += 3;
+            game.bond += 2;
+            break;
+
+        case "condicao":
+            game.courage += 2;
+            game.bond += 1;
+            break;
+
+        case "duvida":
+            game.courage += 2;
+            break;
+
+
+        case "ficar":
+            game.bond += 3;
+            game.courage += 2;
+            break;
+
+        case "medo":
+            game.courage += 3;
+            game.bond += 1;
+            break;
+
+        case "fuga":
+            game.bond -= 2;
+            game.hope -= 1;
+            break;
+
+
+        case "presente":
+            game.hope += 3;
+            game.bond += 2;
+            break;
+
+        case "confissao":
+            game.bond += 3;
+            game.courage += 2;
+            break;
+
+        case "protecao":
+            game.courage += 2;
+            game.hope -= 1;
+            break;
+
+
+        case "memoria":
+            game.bond += 2;
+            game.hope += 1;
+            break;
+
+        case "mundo":
+            game.hope += 4;
+            game.courage += 2;
+            break;
+
+        case "palavras":
+            game.courage += 3;
+            game.hope += 2;
+            break;
+
+    }
+
+
+    nextChapter();
+
+}
+
+
+/* ========================================
+   QTE
+======================================== */
+
+let qteTimer;
+let qteStart;
+let qteDuration = 3000;
+let qteActive = false;
+
+const qteKeys = [
+    "A",
+    "S",
+    "D",
+    "W"
+];
+
+function startQTE(chapter, type) {
+
+    const overlay = document.getElementById("qteOverlay");
+
+    const title = document.getElementById("qteTitle");
+
+    const description =
+        document.getElementById("qteDescription");
+
+    const key =
+        document.getElementById("qteKey");
+
+    const result =
+        document.getElementById("qteResult");
+
+    const timerFill =
+        document.getElementById("qteTimerFill");
+
+
+    const randomKey =
+        qteKeys[Math.floor(Math.random() * qteKeys.length)];
+
+
+    const descriptions = {
+
+        caminhada:
+            "O momento passa rápido. Pressione a tecla certa antes que ele desapareça.",
+
+        jantar:
+            "Uma conversa importante está acontecendo. Reaja no momento certo.",
+
+        observacao:
+            "Um pequeno detalhe chama sua atenção. Não deixe passar.",
+
+        telefone:
+            "O telefone toca. Atenda antes que a ligação termine.",
+
+        hospital:
+            "Você precisa chegar a tempo. Reaja rapidamente.",
+
+        mensagem:
+            "As palavras precisam ser enviadas agora."
+
+    };
+
+
+    title.innerText = "não deixe passar";
+
+    description.innerText =
+        descriptions[type] ||
+        "Reaja rapidamente.";
+
+    key.innerText = randomKey;
+
+    result.innerText = "";
+
+    timerFill.style.width = "100%";
+
+    overlay.classList.add("active");
+
+    qteActive = true;
+
+    qteStart = Date.now();
+
+
+    clearInterval(qteTimer);
+
+    qteTimer = setInterval(() => {
+
+        const elapsed =
+            Date.now() - qteStart;
+
+        const remaining =
+            Math.max(
+                0,
+                1 - elapsed / qteDuration
+            );
+
+        timerFill.style.width =
+            `${remaining * 100}%`;
+
+
+        if(remaining <= 0) {
+
+            finishQTE(false);
+
+        }
+
+    }, 20);
+
+
+    overlay.dataset.key = randomKey;
+    overlay.dataset.chapter = chapter;
+
+}
+
+
+/* ========================================
+   TECLADO QTE
+======================================== */
+
+document.addEventListener("keydown", function(event) {
+
+    if(!qteActive) return;
+
+    const expected =
+        document
+            .getElementById("qteOverlay")
+            .dataset.key;
+
+    if(
+        event.key.toUpperCase() === expected
+    ) {
+
+        finishQTE(true);
+
+    }
+
+});
+
+
+/* ========================================
+   FINAL QTE
+======================================== */
+
+function finishQTE(success) {
+
+    if(!qteActive) return;
+
+    qteActive = false;
+
+    clearInterval(qteTimer);
+
+
+    const key =
+        document.getElementById("qteKey");
+
+    const result =
+        document.getElementById("qteResult");
+
+
+    if(success) {
+
+        game.qteSuccess++;
+
+        game.bond += 2;
+
+        game.hope += 2;
+
+        game.courage += 1;
+
+        key.classList.add("hit");
+
+        result.innerText =
+            "momento preservado";
+
+    } else {
+
+        game.qteFails++;
+
+        game.hope -= 1;
+
+        result.innerText =
+            "o momento passou";
+
+    }
+
+
+    setTimeout(() => {
+
+        key.classList.remove("hit");
+
+        document
+            .getElementById("qteOverlay")
+            .classList.remove("active");
+
+        nextChapter();
+
+    }, 900);
+
+}
+
+
+/* ========================================
+   PRÓXIMO CAPÍTULO
+======================================== */
+
+function nextChapter() {
+
+    const current =
+        document.getElementById(
+            "chapter" + game.chapter
+        );
+
+    if(current) {
+
+        current.classList.remove("active");
+
+    }
+
+
+    game.chapter++;
+
+
+    if(game.chapter > 10) {
+
+        finishGame();
+
+        return;
+
+    }
+
+
+    const next =
+        document.getElementById(
+            "chapter" + game.chapter
+        );
+
+    if(next) {
+
+        next.classList.add("active");
+
+    }
+
+
+    updateInterface();
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+
+}
+
+
+/* ========================================
+   INTERFACE
+======================================== */
+
+function updateInterface() {
+
+    const percent =
+        Math.round(
+            ((game.chapter - 1) / 10) * 100
+        );
+
+
+    document.getElementById(
+        "progressFill"
+    ).style.width =
+        percent + "%";
+
+
+    document.getElementById(
+        "progressPercent"
+    ).innerText =
+        percent + "%";
+
+
+    document.getElementById(
+        "chapterHeader"
+    ).innerText =
+        `parte ${String(game.chapter).padStart(2,"0")} / 10`;
+
+
+    const names = [
+
+        "início",
+
+        "primeiro encontro",
+
+        "troca",
+
+        "o plano",
+
+        "a viagem",
+
+        "depois da viagem",
+
+        "o tempo",
+
+        "o medo",
+
+        "o que permanece",
+
+        "última página"
+
+    ];
+
+
+    document.getElementById(
+        "progressText"
+    ).innerText =
+        `${String(game.chapter).padStart(2,"0")} — ${names[game.chapter - 1] || "fim"}`;
+
+}
+
+
+/* ========================================
+   FINAIS
+======================================== */
+
+function finishGame(finalChoice) {
+
+    document
+        .getElementById("game")
+        .style.display = "none";
+
+
+    document
+        .getElementById("ending")
+        .classList.add("active");
+
+
+    /*
+       Se o jogador não especificar a escolha,
+       o jogo calcula o final pelas estatísticas.
+    */
+
+    let finalType = finalChoice;
+
+
+    if(!finalType) {
+
+        if(
+            game.bond >= 13 &&
+            game.hope >= 10
+        ) {
+
+            finalType = "amor";
+
+        } else if(
+            game.courage >= 10 &&
+            game.hope >= 7
+        ) {
+
+            finalType = "futuro";
+
+        } else {
+
+            finalType = "legado";
+
+        }
+
+    }
+
+
+    /*
+       Escolha final também altera o resultado.
+    */
+
+    if(finalType === "amor") {
+
+        game.bond += 3;
+
+        showEnding(
+
+            "Amor<br>que permanece",
+
+            "Você escolheu não medir a história pelo tempo que ela durou, mas pela intensidade dos momentos que transformaram vocês.",
+
+            "FINAL — UMA HISTÓRIA VIVIDA",
+
+            "Nem todas as histórias precisam durar para sempre para serem importantes. Algumas mudam a maneira como enxergamos cada dia que vem depois."
+
+        );
+
+    }
+
+
+    else if(finalType === "futuro") {
+
+        game.hope += 4;
+
+        game.courage += 2;
+
+        showEnding(
+
+            "Depois<br>das estrelas",
+
+            "Você decidiu continuar. Não porque a dor desapareceu, mas porque seguir em frente também pode ser uma forma de carregar alguém consigo.",
+
+            "FINAL — O AMANHÃ",
+
+            "O futuro não é uma promessa de que nada vai doer. É simplesmente a possibilidade de continuar descobrindo o que ainda existe."
+
+        );
+
+    }
+
+
+    else if(finalType === "legado") {
+
+        game.courage += 4;
+
+        game.hope += 2;
+
+        showEnding(
+
+            "Algo<br>fica",
+
+            "Você escolheu transformar aquilo que viveu em memória, palavras e significado.",
+
+            "FINAL — O LEGADO",
+
+            "Talvez o maior gesto não seja impedir o fim, mas fazer com que aquilo que aconteceu continue produzindo significado depois dele."
+
+        );
+
+    }
+
+
+    document.getElementById(
+        "finalBond"
+    ).innerText = Math.max(0, game.bond);
+
+
+    document.getElementById(
+        "finalHope"
+    ).innerText = Math.max(0, game.hope);
+
+
+    document.getElementById(
+        "finalCourage"
+    ).innerText = Math.max(0, game.courage);
+
+
+    document.getElementById(
+        "progressFill"
+    ).style.width = "100%";
+
+
+    document.getElementById(
+        "progressPercent"
+    ).innerText = "100%";
+
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+
+}
+
+
+/* ========================================
+   TEXTO DO FINAL
+======================================== */
+
+function showEnding(
+    title,
+    description,
+    cardTitle,
+    cardText
+) {
+
+    document.getElementById(
+        "endingTitle"
+    ).innerHTML = title;
+
+    document.getElementById(
+        "endingDescription"
+    ).innerText = description;
+
+    document.getElementById(
+        "endingCardTitle"
+    ).innerText = cardTitle;
+
+    document.getElementById(
+        "endingCardText"
+    ).innerText = cardText;
+
+}
+
+
+/* ========================================
+   REINICIAR
+======================================== */
+
+function restartGame() {
+
+    game = {
+
+        chapter: 1,
+
+        bond: 0,
+
+        hope: 0,
+
+        courage: 0,
+
+        choices: [],
+
+        qteSuccess: 0,
+
+        qteFails: 0
+
+    };
+
+
+    clearInterval(qteTimer);
+
+    qteActive = false;
+
+
+    document
+        .getElementById("qteOverlay")
+        .classList.remove("active");
+
+
+    document
+        .getElementById("ending")
+        .classList.remove("active");
+
+
+    document
+        .getElementById("game")
+        .style.display = "block";
+
+
+    document
+        .querySelectorAll(".chapter")
+        .forEach(chapter => {
+
+            chapter.classList.remove("active");
+
+        });
+
+
+    document
+        .getElementById("chapter1")
+        .classList.add("active");
+
+
+    document
+        .getElementById("intro")
+        .classList.remove("hide");
+
+
+    updateInterface();
+
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+
+}
+
+
+/* ========================================
+   EFEITO DE CURSOR
+======================================== */
+
+document.addEventListener(
+    "mousemove",
+    function(e) {
+
+        const x =
+            (e.clientX / window.innerWidth - .5) * 10;
+
+        const y =
+            (e.clientY / window.innerHeight - .5) * 10;
+
+
+        document
+            .querySelectorAll(".scene-box")
+            .forEach(box => {
+
+                box.style.transform =
+                    `translate(${x * .25}px, ${y * .25}px)`;
+
+            });
+
+    }
+);
+
+
+/* ========================================
+   INICIALIZAÇÃO
+======================================== */
+
+updateInterface();
+
+</script>
+
+</body>
+</html>
+
